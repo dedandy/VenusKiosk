@@ -1,0 +1,16 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'local.venus.kiosk'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'local.venus.kiosk'
+        minSdk 22
+        targetSdk 22
+        versionCode 1
+        versionName '0.1'
+    }
+}
