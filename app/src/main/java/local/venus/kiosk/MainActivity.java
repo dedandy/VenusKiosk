@@ -13,6 +13,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -37,6 +39,7 @@ public class MainActivity extends Activity {
     private WebView webView;
     private View adminHotspot;
     private long hotspotDownAt = 0L;
+    private final Handler fitHandler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,14 +116,7 @@ public class MainActivity extends Activity {
                 super.onPageFinished(view, url);
                 hideSystemUi();
                 if (isFitEnabled()) {
-                    // Venus/noVNC may finish laying itself out after onPageFinished.
-                    applyConsoleFit(view);
-                    view.postDelayed(new Runnable() {
-                        @Override public void run() { applyConsoleFit(view); }
-                    }, 1000);
-                    view.postDelayed(new Runnable() {
-                        @Override public void run() { applyConsoleFit(view); }
-                    }, 3000);
+                    scheduleConsoleFit(view);
                 }
             }
         });
@@ -131,6 +127,20 @@ public class MainActivity extends Activity {
 
     private boolean isFitEnabled() {
         return getSharedPreferences(PREFS, MODE_PRIVATE).getBoolean(KEY_FIT, true);
+    }
+
+    /** Retries the existing fit script while Venus/noVNC completes its initial layout. */
+    private void scheduleConsoleFit(final WebView view) {
+        fitHandler.removeCallbacksAndMessages(null);
+        long[] delays = {300L, 1000L, 2000L};
+        for (long delay : delays) {
+            fitHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    applyConsoleFit(view);
+                }
+            }, delay);
+        }
     }
 
     private void applyConsoleFit(WebView view) {
@@ -421,6 +431,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        fitHandler.removeCallbacksAndMessages(null);
         if (webView != null) webView.destroy();
         super.onDestroy();
     }
