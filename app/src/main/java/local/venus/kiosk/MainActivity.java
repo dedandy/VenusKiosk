@@ -156,7 +156,14 @@ public class MainActivity extends Activity {
                 " }" +
                 " var rows=panel.querySelectorAll('.remote-console-controls-row');" +
                 " for(var m=0;m<rows.length;m++){" +
-                "  rows[m].style.display='contents';" +
+                "  rows[m].style.display='none';" +
+                " }" +
+                " var sequence=['left-button','right-button','up','down','left','right','center'];" +
+                " if(controlsArea){" +
+                "  for(var z=0;z<sequence.length;z++){" +
+                "   var item=panel.querySelector('[data-button=\"'+sequence[z]+'\"]');" +
+                "   if(item){controlsArea.appendChild(item);}" +
+                "  }" +
                 " }" +
                 " var order={\"left-button\":1,\"right-button\":2,up:3,down:4,left:5,right:6,center:7};" +
                 " var controls=panel.querySelectorAll('.remote-console-control-button');" +
