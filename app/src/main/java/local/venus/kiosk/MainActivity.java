@@ -130,9 +130,15 @@ public class MainActivity extends Activity {
                 "html.style.background='#000';b.style.background='#000';" +
                 "html.style.margin='0';b.style.margin='0';" +
                 "html.style.overflow='hidden';b.style.overflow='hidden';" +
+                "var shells=d.querySelectorAll('.remote-console-popup-container,.remote-console-logged-in,.remote-console-display-container,.remote-console-display,.remote-console-display-inner');" +
+                "for(var h=0;h<shells.length;h++){" +
+                " shells[h].style.background='transparent';shells[h].style.border='0';shells[h].style.boxShadow='none';" +
+                "}" +
                 "var sidebarWidth=136;" +
-                "var panel=d.querySelector('.remote-console-logged-in .remote-console-controls-container');" +
+                "var panel=d.getElementById('venus-kiosk-hotkeys')||d.querySelector('.remote-console-logged-in .remote-console-controls-container');" +
                 "if(panel){" +
+                " panel.id='venus-kiosk-hotkeys';" +
+                " b.appendChild(panel);" +
                 " panel.style.setProperty('display','block','important');" +
                 " panel.style.position='fixed';panel.style.right='4px';panel.style.top='50%';" +
                 " panel.style.left='auto';panel.style.width=(sidebarWidth-8)+'px';panel.style.height='auto';" +
@@ -160,11 +166,22 @@ public class MainActivity extends Activity {
                 "  controls[n].style.position='static';controls[n].style.width='100%';controls[n].style.height='62px';" +
                 "  controls[n].style.margin='4px 0';controls[n].style.padding='0';controls[n].style.boxSizing='border-box';" +
                 "  controls[n].style.background='#f4f5f6';controls[n].style.border='1px solid #3b4650';" +
-                "  controls[n].style.borderRadius='8px';controls[n].style.fontSize='22px';" +
+                "  controls[n].style.borderRadius='8px';controls[n].style.color='#4698cc';controls[n].style.fontSize='22px';" +
                 "  controls[n].style.touchAction='manipulation';controls[n].style.float='none';" +
                 " }" +
+                " var escSpacer=panel.querySelector('[data-button=\"left-button\"] .remote-console-control-icon:not(.text)');" +
+                " if(escSpacer){escSpacer.style.display='none';}" +
+                " var escText=panel.querySelector('[data-button=\"left-button\"] .text');" +
+                " if(escText){" +
+                "  escText.style.position='static';escText.style.width='auto';escText.style.height='auto';" +
+                "  escText.style.lineHeight='normal';escText.style.margin='0';escText.style.fontWeight='700';" +
+                " }" +
                 " var icons=panel.querySelectorAll('.remote-console-control-icon');" +
-                " for(var q=0;q<icons.length;q++){icons[q].style.maxWidth='28px';icons[q].style.maxHeight='28px';}" +
+                " for(var q=0;q<icons.length;q++){" +
+                "  icons[q].style.maxWidth='28px';icons[q].style.maxHeight='28px';icons[q].style.transform='scale(1.15)';" +
+                " }" +
+                " var shapes=panel.querySelectorAll('svg path,svg rect');" +
+                " for(var u=0;u<shapes.length;u++){shapes[u].style.stroke='#4698cc';shapes[u].style.strokeWidth='0.65';}" +
                 "}" +
                 "var cs=d.getElementsByTagName('canvas'),c=null,area=0;" +
                 "for(var k=0;k<cs.length;k++){var rr=cs[k].getBoundingClientRect(),a=rr.width*rr.height;if(a>area){area=a;c=cs[k];}}" +
