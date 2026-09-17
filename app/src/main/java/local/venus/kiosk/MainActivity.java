@@ -136,22 +136,35 @@ public class MainActivity extends Activity {
                 " panel.style.setProperty('display','block','important');" +
                 " panel.style.position='fixed';panel.style.right='4px';panel.style.top='50%';" +
                 " panel.style.left='auto';panel.style.width=(sidebarWidth-8)+'px';panel.style.height='auto';" +
-                " panel.style.margin='0';panel.style.padding='6px';panel.style.boxSizing='border-box';" +
+                " panel.style.margin='0';panel.style.padding='8px';panel.style.boxSizing='border-box';" +
+                " panel.style.background='#171a1f';panel.style.borderRadius='10px';panel.style.overflow='hidden';" +
                 " panel.style.transform='translateY(-50%)';panel.style.zIndex='2147483647';" +
                 " var title=panel.querySelector('.remote-console-controls-text');" +
-                " if(title){title.style.margin='0 0 4px';title.style.fontSize='14px';}" +
+                " if(title){title.style.display='none';}" +
+                " var controlsArea=panel.querySelector('.remote-console-controls');" +
+                " if(controlsArea){" +
+                "  controlsArea.style.display='flex';controlsArea.style.flexDirection='column';" +
+                "  controlsArea.style.alignItems='stretch';controlsArea.style.width='100%';" +
+                "  controlsArea.style.height='auto';controlsArea.style.margin='0';controlsArea.style.padding='0';" +
+                "  controlsArea.style.position='static';controlsArea.style.background='transparent';" +
+                " }" +
                 " var rows=panel.querySelectorAll('.remote-console-controls-row');" +
                 " for(var m=0;m<rows.length;m++){" +
-                "  rows[m].style.display='flex';rows[m].style.justifyContent='center';rows[m].style.margin='2px 0';" +
+                "  rows[m].style.display='contents';" +
                 " }" +
+                " var order={\"left-button\":1,\"right-button\":2,up:3,down:4,left:5,right:6,center:7};" +
                 " var controls=panel.querySelectorAll('.remote-console-control-button');" +
                 " for(var n=0;n<controls.length;n++){" +
                 "  controls[n].style.display='flex';controls[n].style.alignItems='center';controls[n].style.justifyContent='center';" +
-                "  controls[n].style.width=controls[n].classList.contains('wide')?'54px':'38px';" +
-                "  controls[n].style.height='42px';controls[n].style.margin='2px';controls[n].style.padding='0';" +
-                "  controls[n].style.boxSizing='border-box';controls[n].style.fontSize='18px';" +
+                "  controls[n].style.order=order[controls[n].getAttribute('data-button')]||99;" +
+                "  controls[n].style.position='static';controls[n].style.width='100%';controls[n].style.height='62px';" +
+                "  controls[n].style.margin='4px 0';controls[n].style.padding='0';controls[n].style.boxSizing='border-box';" +
+                "  controls[n].style.background='#f4f5f6';controls[n].style.border='1px solid #3b4650';" +
+                "  controls[n].style.borderRadius='8px';controls[n].style.fontSize='22px';" +
                 "  controls[n].style.touchAction='manipulation';controls[n].style.float='none';" +
                 " }" +
+                " var icons=panel.querySelectorAll('.remote-console-control-icon');" +
+                " for(var q=0;q<icons.length;q++){icons[q].style.maxWidth='28px';icons[q].style.maxHeight='28px';}" +
                 "}" +
                 "var cs=d.getElementsByTagName('canvas'),c=null,area=0;" +
                 "for(var k=0;k<cs.length;k++){var rr=cs[k].getBoundingClientRect(),a=rr.width*rr.height;if(a>area){area=a;c=cs[k];}}" +
