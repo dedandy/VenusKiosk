@@ -130,28 +130,27 @@ public class MainActivity extends Activity {
                 "html.style.background='#000';b.style.background='#000';" +
                 "html.style.margin='0';b.style.margin='0';" +
                 "html.style.overflow='hidden';b.style.overflow='hidden';" +
-                "var sidebarWidth=112,panel=null,all=d.getElementsByTagName('*');" +
-                "for(var i=0;i<all.length;i++){" +
-                " var t=(all[i].textContent||'').replace(/\\s+/g,' ').trim();" +
-                " if(t==='Hotkeys'){" +
-                "  var p=all[i];" +
-                "  for(var j=0;j<5 && p;j++,p=p.parentElement){" +
-                "   var r=p.getBoundingClientRect();" +
-                "   if(r.width>90 && r.width<380 && r.height>180){panel=p;break;}" +
-                "  }" +
-                " }" +
-                "}" +
+                "var sidebarWidth=136;" +
+                "var panel=d.querySelector('.remote-console-logged-in .remote-console-controls-container');" +
                 "if(panel){" +
                 " panel.style.setProperty('display','block','important');" +
                 " panel.style.position='fixed';panel.style.right='4px';panel.style.top='50%';" +
                 " panel.style.left='auto';panel.style.width=(sidebarWidth-8)+'px';panel.style.height='auto';" +
                 " panel.style.margin='0';panel.style.padding='6px';panel.style.boxSizing='border-box';" +
                 " panel.style.transform='translateY(-50%)';panel.style.zIndex='2147483647';" +
-                " var controls=panel.querySelectorAll('button,input[type=button],input[type=submit]');" +
+                " var title=panel.querySelector('.remote-console-controls-text');" +
+                " if(title){title.style.margin='0 0 4px';title.style.fontSize='14px';}" +
+                " var rows=panel.querySelectorAll('.remote-console-controls-row');" +
+                " for(var m=0;m<rows.length;m++){" +
+                "  rows[m].style.display='flex';rows[m].style.justifyContent='center';rows[m].style.margin='2px 0';" +
+                " }" +
+                " var controls=panel.querySelectorAll('.remote-console-control-button');" +
                 " for(var n=0;n<controls.length;n++){" +
-                "  controls[n].style.display='block';controls[n].style.width='100%';" +
-                "  controls[n].style.minHeight='42px';controls[n].style.margin='4px 0';" +
-                "  controls[n].style.fontSize='18px';controls[n].style.touchAction='manipulation';" +
+                "  controls[n].style.display='flex';controls[n].style.alignItems='center';controls[n].style.justifyContent='center';" +
+                "  controls[n].style.width=controls[n].classList.contains('wide')?'54px':'38px';" +
+                "  controls[n].style.height='42px';controls[n].style.margin='2px';controls[n].style.padding='0';" +
+                "  controls[n].style.boxSizing='border-box';controls[n].style.fontSize='18px';" +
+                "  controls[n].style.touchAction='manipulation';controls[n].style.float='none';" +
                 " }" +
                 "}" +
                 "var cs=d.getElementsByTagName('canvas'),c=null,area=0;" +
