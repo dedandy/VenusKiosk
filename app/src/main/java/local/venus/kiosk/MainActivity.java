@@ -2,10 +2,15 @@ package local.venus.kiosk;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -17,7 +22,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -220,7 +224,51 @@ public class MainActivity extends Activity {
         webView.loadUrl(url);
     }
 
+    /** Shows the five administrative actions available from the hidden hotspot. */
     private void showAdminDialog() {
+        final String[] actions = {
+                "Cambia URL",
+                "Apri Silk",
+                "Impostazioni Android",
+                "Ricarica pagina",
+                "Esci / diagnostica"
+        };
+
+        new AlertDialog.Builder(this)
+                .setTitle("Venus Kiosk")
+                .setItems(actions, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                showChangeUrlDialog();
+                                break;
+                            case 1:
+                                openSilk();
+                                break;
+                            case 2:
+                                openAndroidSettings();
+                                break;
+                            case 3:
+                                webView.reload();
+                                break;
+                            case 4:
+                                showDiagnosticsDialog();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                })
+                .setNegativeButton("Annulla", null)
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override public void onDismiss(DialogInterface dialog) { hideSystemUi(); }
+                })
+                .show();
+    }
+
+    /** Shows the URL editor while preserving the existing console-fit setting. */
+    private void showChangeUrlDialog() {
         final SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
 
         final EditText input = new EditText(this);
@@ -232,18 +280,6 @@ public class MainActivity extends Activity {
         fit.setText("Adatta console con sidebar Hotkeys");
         fit.setChecked(prefs.getBoolean(KEY_FIT, true));
 
-        Button silkButton = new Button(this);
-        silkButton.setText("Apri Silk");
-        silkButton.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { openSilk(); }
-        });
-
-        Button settingsButton = new Button(this);
-        settingsButton.setText("Impostazioni Android");
-        settingsButton.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { openAndroidSettings(); }
-        });
-
         LinearLayout form = new LinearLayout(this);
         form.setOrientation(LinearLayout.VERTICAL);
         int pad = (int) (16 * getResources().getDisplayMetrics().density);
@@ -254,18 +290,11 @@ public class MainActivity extends Activity {
         form.addView(fit, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT));
-        form.addView(silkButton, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT));
-        form.addView(settingsButton, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT));
 
         new AlertDialog.Builder(this)
-                .setTitle("Venus Kiosk")
-                .setMessage("Dashboard")
+                .setTitle("Cambia URL")
                 .setView(form)
-                .setPositiveButton("Salva e ricarica", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Salva", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String value = input.getText().toString().trim();
@@ -276,10 +305,7 @@ public class MainActivity extends Activity {
                         webView.loadUrl(value);
                     }
                 })
-                .setNeutralButton("Ricarica", new DialogInterface.OnClickListener() {
-                    @Override public void onClick(DialogInterface dialog, int which) { webView.reload(); }
-                })
-                .setNegativeButton("Chiudi", null)
+                .setNegativeButton("Annulla", null)
                 .setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override public void onDismiss(DialogInterface dialog) { hideSystemUi(); }
                 })
@@ -293,12 +319,77 @@ public class MainActivity extends Activity {
             Toast.makeText(this, "Silk non disponibile", Toast.LENGTH_SHORT).show();
             return;
         }
-        startActivity(intent);
+        try {
+            startActivity(intent);
+        } catch (Exception e) {
+            Toast.makeText(this, "Impossibile aprire Silk", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /** Opens the Android system settings screen. */
     private void openAndroidSettings() {
-        startActivity(new Intent(Settings.ACTION_SETTINGS));
+        try {
+            startActivity(new Intent(Settings.ACTION_SETTINGS));
+        } catch (Exception e) {
+            Toast.makeText(this, "Impossibile aprire le impostazioni", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /** Shows runtime diagnostics and allows the user to close the kiosk activity. */
+    private void showDiagnosticsDialog() {
+        SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        String message = "URL: " + prefs.getString(KEY_URL, DEFAULT_URL)
+                + "\nVersione app: " + getAppVersion()
+                + "\nRete: " + (isNetworkConnected() ? "connessa" : "non connessa")
+                + "\nAndroid: " + Build.VERSION.RELEASE + " (API " + Build.VERSION.SDK_INT + ")"
+                + "\nWebView: " + getWebViewVersion();
+
+        new AlertDialog.Builder(this)
+                .setTitle("Esci / diagnostica")
+                .setMessage(message)
+                .setPositiveButton("Esci dal kiosk", new DialogInterface.OnClickListener() {
+                    @Override public void onClick(DialogInterface dialog, int which) { finish(); }
+                })
+                .setNegativeButton("Annulla", null)
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override public void onDismiss(DialogInterface dialog) { hideSystemUi(); }
+                })
+                .show();
+    }
+
+    /** Returns the application version name from the installed package metadata. */
+    private String getAppVersion() {
+        try {
+            return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            return "non disponibile";
+        }
+    }
+
+    /** Reports whether Android currently has an active connected network. */
+    private boolean isNetworkConnected() {
+        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo network = manager == null ? null : manager.getActiveNetworkInfo();
+        return network != null && network.isConnected();
+    }
+
+    /** Finds the installed WebView provider version using package names available on API 22. */
+    private String getWebViewVersion() {
+        String[] packages = {
+                "com.amazon.webview",
+                "com.amazon.webview.chromium",
+                "com.google.android.webview",
+                "com.android.webview"
+        };
+        for (String packageName : packages) {
+            try {
+                PackageInfo info = getPackageManager().getPackageInfo(packageName, 0);
+                return info.versionName;
+            } catch (PackageManager.NameNotFoundException ignored) {
+                // Try the next provider used by Android or Fire OS.
+            }
+        }
+        return "non disponibile";
     }
 
     private void hideSystemUi() {
