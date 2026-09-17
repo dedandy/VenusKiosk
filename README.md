@@ -34,3 +34,7 @@ Open in Android Studio and Build APK(s), or run `gradle :app:assembleDebug` with
     adb uninstall local.venus.kiosk
 
 No Amazon packages are modified by this project.
+
+
+### Note
+Fire OS 5.3.6.4 blocks pm disable-user for Amazon system packages over ADB.

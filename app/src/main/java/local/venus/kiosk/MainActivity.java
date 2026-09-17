@@ -3,10 +3,12 @@ package local.venus.kiosk;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,10 +17,12 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
     private static final String PREFS = "venus_kiosk";
@@ -225,6 +229,18 @@ public class MainActivity extends Activity {
         fit.setText("Adatta console con sidebar Hotkeys");
         fit.setChecked(prefs.getBoolean(KEY_FIT, true));
 
+        Button silkButton = new Button(this);
+        silkButton.setText("Apri Silk");
+        silkButton.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { openSilk(); }
+        });
+
+        Button settingsButton = new Button(this);
+        settingsButton.setText("Impostazioni Android");
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { openAndroidSettings(); }
+        });
+
         LinearLayout form = new LinearLayout(this);
         form.setOrientation(LinearLayout.VERTICAL);
         int pad = (int) (16 * getResources().getDisplayMetrics().density);
@@ -233,6 +249,12 @@ public class MainActivity extends Activity {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT));
         form.addView(fit, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+        form.addView(silkButton, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+        form.addView(settingsButton, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT));
 
@@ -259,6 +281,21 @@ public class MainActivity extends Activity {
                     @Override public void onDismiss(DialogInterface dialog) { hideSystemUi(); }
                 })
                 .show();
+    }
+
+    /** Opens the Amazon Silk browser when it is installed on the device. */
+    private void openSilk() {
+        Intent intent = getPackageManager().getLaunchIntentForPackage("com.amazon.cloud9");
+        if (intent == null) {
+            Toast.makeText(this, "Silk non disponibile", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        startActivity(intent);
+    }
+
+    /** Opens the Android system settings screen. */
+    private void openAndroidSettings() {
+        startActivity(new Intent(Settings.ACTION_SETTINGS));
     }
 
     private void hideSystemUi() {
